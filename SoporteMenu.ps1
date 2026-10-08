@@ -11,33 +11,31 @@ $RutaDestino = "C:\SoporteTI"
 if (-not (Test-Path $RutaDestino)) { New-Item -ItemType Directory -Path $RutaDestino | Out-Null }
 [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12
 
-# === TU CONFIGURACIÓN DE SEGURIDAD ===
-$Token = "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"
-$HeadersGitHub = @{ Authorization = "token $Token" }
-
-# 3. BASE DE DATOS DE TUS HERRAMIENTAS
+# 3. BASE DE DATOS PÚBLICA / HÍBRIDA (INSPIRADA EN HIREN'S BOOT CD)
 $Repo = @{
     "DRIVERS" = @{
         "1" = @{ Nombre = "Driver de Red Universal"; Url = "https://tu-nube.com"; Tipo = "Instalable"; Args = "/S" }
         "2" = @{ Nombre = "Driver Chipset Intel";    Url = "https://tu-nube.com"; Tipo = "Instalable"; Args = "-silent" }
     }
     "UTILERIAS" = @{
-        "1" = @{ Nombre = "AnyDesk Técnico Real";    Url = "https://githubusercontent.com"; Tipo = "Portable"; Args = "" }
-        "2" = @{ Nombre = "CrystalDiskInfo (Disco)"; Url = "https://tu-nube.com"; Tipo = "Portable"; Args = "" }
-        "3" = @{ Nombre = "7-Zip Extractor";         Url = "https://tu-nube.com"; Tipo = "Instalable"; Args = "/S" }
+        # URL Oficial Directa Pública de AnyDesk - Vuela sin restricciones
+        "1" = @{ Nombre = "AnyDesk Técnico Portable"; Url = "https://anydesk.com"; Tipo = "Portable"; Args = "" }
+        # URL Espejo de Hiren's Boot para CrystalDiskInfo Portable
+        "2" = @{ Nombre = "CrystalDiskInfo (Disco)";  Url = "https://hirensbootcd.org"; Tipo = "ZipPortable"; Args = "DiskInfo64.exe" }
+        "3" = @{ Nombre = "7-Zip Extractor (Oficial)";Url = "https://7-zip.org"; Tipo = "Instalable"; Args = "/S" }
     }
     "ANTIVIRUS" = @{
         "1" = @{ Nombre = "Kaspersky Removal Tool";  Url = "https://tu-nube.com"; Tipo = "Portable"; Args = "" }
         "2" = @{ Nombre = "Malwarebytes AdwCleaner"; Url = "https://tu-nube.com"; Tipo = "Portable"; Args = "" }
     }
     "SAQMED" = @{
-        "1" = @{ Nombre = "Programa Interno SAQMED"; Url = "https://tu-nube.com"; Tipo = "Instalable"; Args = "/silent" }
-        "2" = @{ Nombre = "Base de Datos SAQMED";    Url = "https://tu-nube.com"; Tipo = "Portable"; Args = "" }
+        # Modo Híbrido: Herramientas privadas se ejecutan localmente si traes tu USB o carpeta lista
+        "1" = @{ Nombre = "Programa Interno SAQMED"; Url = "Saqmed.exe"; Tipo = "LocalInstalable"; Args = "/silent" }
+        "2" = @{ Nombre = "Base de Datos SAQMED";    Url = "BaseSaqmed.exe"; Tipo = "LocalPortable"; Args = "" }
     }
     "OTROS" = @{
-        "1" = @{ Nombre = "Navegador Google Chrome"; Url = "https://tu-nube.com"; Tipo = "Instalable"; Args = "/qn /norestart" }
+        "1" = @{ Nombre = "Navegador Google Chrome"; Url = "https://google.com"; Tipo = "Instalable"; Args = "/qn /norestart" }
         "2" = @{ Nombre = "Limpiador Temporal Windows"; Url = "https://tu-nube.com"; Tipo = "Script"; Args = "" }
-        # === AQUÍ AGREGAMOS LA NUEVA HERRAMIENTA DIRECTO EN MEMORIA ===
         "3" = @{ Nombre = "Win11Debloat (Optimizar Sistema)"; Url = "https://githubusercontent.com"; Tipo = "Memoria"; Args = "" }
     }
 }
@@ -52,16 +50,27 @@ function Ejecutar-Herramientas {
     Write-Host ">>> Procesando: $($Tool.Nombre)" -ForegroundColor Cyan
     
     try {
-        # NUEVA LÓGICA: Si es tipo "Memoria", corre directo estilo Raphire sin descargar archivo físico
         if ($Tool.Tipo -eq "Memoria") {
-            Write-Host "Ejecutando script optimizador directo en memoria RAM..." -ForegroundColor Yellow
+            Write-Host "Ejecutando script optimizador directo en memoria RAM estilo Raphire..." -ForegroundColor Yellow
             $ScriptPuro = Invoke-RestMethod -Uri $Tool.Url -UseBasicParsing
             & ([scriptblock]::Create($ScriptPuro))
         } 
+        elseif ($Tool.Tipo -startswith "Local") {
+            # Lógica para tus archivos privados de SAQMED (sin internet)
+            $ArchivoPrivado = Join-Path $RutaDestino $Tool.Url
+            if (-not (Test-Path $ArchivoPrivado)) {
+                Write-Warning "El instalador privado no se encuentra en C:\SoporteTI"
+                Write-Host "Por favor coloca el archivo [$($Tool.Url)] en C:\SoporteTI para usar esta opción interna." -ForegroundColor Yellow
+            } else {
+                Write-Host "Iniciando herramienta interna de la empresa..." -ForegroundColor Green
+                if ($Tool.Tipo -eq "LocalPortable") { Start-Process $ArchivoPrivado }
+                else { Start-Process $ArchivoPrivado -ArgumentList $Tool.Args -Wait }
+            }
+        }
         else {
-            # Lógica normal para tus ejecutables de GitHub Privado
-            Write-Host "Descargando de forma segura desde tu GitHub..." -ForegroundColor Yellow
-            Invoke-WebRequest -Uri $Tool.Url -OutFile $ArchivoLocal -Headers $HeadersGitHub -UseBasicParsing
+            # Descargas públicas directas ultra rápidas
+            Write-Host "Descargando desde el servidor público oficial..." -ForegroundColor Yellow
+            Invoke-WebRequest -Uri $Tool.Url -OutFile $ArchivoLocal -UseBasicParsing
             Write-Host "[✓] Descargado con éxito en: $ArchivoLocal" -ForegroundColor Green
             
             if ($Tool.Tipo -eq "Portable") { 
@@ -71,6 +80,13 @@ function Ejecutar-Herramientas {
             elseif ($Tool.Tipo -eq "Instalable") { 
                 Write-Host "Instalando en segundo plano..." -ForegroundColor Green
                 Start-Process $ArchivoLocal -ArgumentList $Tool.Args -Wait 
+            }
+            elseif ($Tool.Tipo -eq "ZipPortable") {
+                Write-Host "Extrayendo utilería portable comprimida..." -ForegroundColor Green
+                $CarpetaZip = Join-Path $RutaDestino ($NombreArchivo -replace '\.zip$', '')
+                Expand-Archive -Path $ArchivoLocal -DestinationPath $CarpetaZip -Force
+                $Ejecutable = Join-Path $CarpetaZip $Tool.Args
+                Start-Process $Ejecutable
             }
         }
     } catch { 
