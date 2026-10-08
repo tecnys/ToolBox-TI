@@ -15,14 +15,14 @@ if (-not (Test-Path $RutaDestino)) { New-Item -ItemType Directory -Path $RutaDes
 $Token = "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"
 $HeadersGitHub = @{ Authorization = "token $Token" }
 
-# 3. BASE DE DATOS DE TUS HERRAMIENTAS REALES
+# 3. BASE DE DATOS DE TUS HERRAMIENTAS
 $Repo = @{
     "DRIVERS" = @{
         "1" = @{ Nombre = "Driver de Red Universal"; Url = "https://tu-nube.com"; Tipo = "Instalable"; Args = "/S" }
         "2" = @{ Nombre = "Driver Chipset Intel";    Url = "https://tu-nube.com"; Tipo = "Instalable"; Args = "-silent" }
     }
     "UTILERIAS" = @{
-        "1" = @{ Nombre = "AnyDesk Técnico Real";    Url = "https://raw.githubusercontent.com/tecnys/ToolBox-TI/main/AnyDesk.exe"; Tipo = "Portable"; Args = "" }
+        "1" = @{ Nombre = "AnyDesk Técnico Real";    Url = "https://githubusercontent.com"; Tipo = "Portable"; Args = "" }
         "2" = @{ Nombre = "CrystalDiskInfo (Disco)"; Url = "https://tu-nube.com"; Tipo = "Portable"; Args = "" }
         "3" = @{ Nombre = "7-Zip Extractor";         Url = "https://tu-nube.com"; Tipo = "Instalable"; Args = "/S" }
     }
@@ -37,6 +37,8 @@ $Repo = @{
     "OTROS" = @{
         "1" = @{ Nombre = "Navegador Google Chrome"; Url = "https://tu-nube.com"; Tipo = "Instalable"; Args = "/qn /norestart" }
         "2" = @{ Nombre = "Limpiador Temporal Windows"; Url = "https://tu-nube.com"; Tipo = "Script"; Args = "" }
+        # === AQUÍ AGREGAMOS LA NUEVA HERRAMIENTA DIRECTO EN MEMORIA ===
+        "3" = @{ Nombre = "Win11Debloat (Optimizar Sistema)"; Url = "https://githubusercontent.com"; Tipo = "Memoria"; Args = "" }
     }
 }
 
@@ -48,22 +50,31 @@ function Ejecutar-Herramientas {
     
     Clear-Host
     Write-Host ">>> Procesando: $($Tool.Nombre)" -ForegroundColor Cyan
-    Write-Host "Descargando de forma segura desde tu GitHub..." -ForegroundColor Yellow
     
     try {
-        Invoke-WebRequest -Uri $Tool.Url -OutFile $ArchivoLocal -Headers $HeadersGitHub -UseBasicParsing
-        Write-Host "[✓] Descargado con éxito en: $ArchivoLocal" -ForegroundColor Green
-        
-        if ($Tool.Tipo -eq "Portable") { 
-            Write-Host "Iniciando herramienta..." -ForegroundColor Green
-            Start-Process $ArchivoLocal 
+        # NUEVA LÓGICA: Si es tipo "Memoria", corre directo estilo Raphire sin descargar archivo físico
+        if ($Tool.Tipo -eq "Memoria") {
+            Write-Host "Ejecutando script optimizador directo en memoria RAM..." -ForegroundColor Yellow
+            $ScriptPuro = Invoke-RestMethod -Uri $Tool.Url -UseBasicParsing
+            & ([scriptblock]::Create($ScriptPuro))
         } 
-        elseif ($Tool.Tipo -eq "Instalable") { 
-            Write-Host "Instalando en segundo plano..." -ForegroundColor Green
-            Start-Process $ArchivoLocal -ArgumentList $Tool.Args -Wait 
+        else {
+            # Lógica normal para tus ejecutables de GitHub Privado
+            Write-Host "Descargando de forma segura desde tu GitHub..." -ForegroundColor Yellow
+            Invoke-WebRequest -Uri $Tool.Url -OutFile $ArchivoLocal -Headers $HeadersGitHub -UseBasicParsing
+            Write-Host "[✓] Descargado con éxito en: $ArchivoLocal" -ForegroundColor Green
+            
+            if ($Tool.Tipo -eq "Portable") { 
+                Write-Host "Iniciando herramienta..." -ForegroundColor Green
+                Start-Process $ArchivoLocal 
+            } 
+            elseif ($Tool.Tipo -eq "Instalable") { 
+                Write-Host "Instalando en segundo plano..." -ForegroundColor Green
+                Start-Process $ArchivoLocal -ArgumentList $Tool.Args -Wait 
+            }
         }
     } catch { 
-        Write-Warning "Error al procesar: $_." 
+        Write-Warning "Error al procesar la herramienta: $_." 
     }
     Read-Host "`nPresiona Enter para volver"
 }
@@ -73,12 +84,12 @@ while ($true) {
     Write-Host "==================================================" -ForegroundColor Green
     Write-Host "          TOOLBOX TI - MENU PRINCIPAL             " -ForegroundColor Green
     Write-Host "==================================================" -ForegroundColor Green
-    Write-Host "[1] DRIVERS"
-    Write-Host "[2] UTILERIAS"
-    Write-Host "[3] ANTIVIRUS"
-    Write-Host "[4] SAQMED"
-    Write-Host "[5] OTROS"
-    Write-Host "[X] Salir"
+    Write-Host " DRIVERS"
+    Write-Host " UTILERIAS"
+    Write-Host " ANTIVIRUS"
+    Write-Host " SAQMED"
+    Write-Host " OTROS"
+    Write-Host " [X] Salir"
     Write-Host "==================================================" -ForegroundColor Green
     $Opcion = Read-Host "Selecciona una categoría"
     $CatSeleccionada = switch ($Opcion) { "1" {"DRIVERS"}; "2" {"UTILERIAS"}; "3" {"ANTIVIRUS"}; "4" {"SAQMED"}; "5" {"OTROS"}; "X" {break}; "x" {break}; default {continue} }
@@ -94,4 +105,3 @@ while ($true) {
         if ($Items.ContainsKey($SubOpcion)) { Ejecutar-Herramientas -Categoria $CatSeleccionada -SubOpcion $SubOpcion }
     }
 }
-
