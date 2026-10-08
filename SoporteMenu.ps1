@@ -22,7 +22,7 @@ $Repo = @{
         "2" = @{ Nombre = "Driver Chipset Intel";    Url = "https://tu-nube.com"; Tipo = "Instalable"; Args = "-silent" }
     }
     "UTILERIAS" = @{
-        "1" = @{ Nombre = "AnyDesk Técnico Real";    Url = "https://githubusercontent.com"; Tipo = "Portable"; Args = "" }
+        "1" = @{ Nombre = "AnyDesk Técnico Real";    Url = "https://raw.githubusercontent.com/tecnys/ToolBox-TI/main/AnyDesk.exe"; Tipo = "Portable"; Args = "" }
         "2" = @{ Nombre = "CrystalDiskInfo (Disco)"; Url = "https://tu-nube.com"; Tipo = "Portable"; Args = "" }
         "3" = @{ Nombre = "7-Zip Extractor";         Url = "https://tu-nube.com"; Tipo = "Instalable"; Args = "/S" }
     }
