@@ -1,5 +1,3 @@
-Add-Type -AssemblyName PresentationFramework
-
 \$Ventana = New-Object System.Windows.Window
 \$Ventana.Title = "Toolbox Tecnys - Panel de Soporte TI"
 \$Ventana.Width = 500
