@@ -1,4 +1,4 @@
-﻿if (!([Security.Principal.WindowsPrincipal][Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole([Security.Principal.WindowsBuiltInRole]::Administrator)) {
+if (!([Security.Principal.WindowsPrincipal][Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole([Security.Principal.WindowsBuiltInRole]::Administrator)) {
     \$powershellCmd = if (Get-Command pwsh -ErrorAction SilentlyContinue) { "pwsh" } else { "powershell" }
     Start-Process \$powershellCmd -ArgumentList @("-ExecutionPolicy", "Bypass", "-NoProfile", "-File", "`"$PSCommandPath`"") -Verb RunAs
     Exit
@@ -7,7 +7,7 @@
 Add-Type -AssemblyName PresentationFramework
 
 \$Ventana = New-Object System.Windows.Window
-\$Ventana.Title = "Utilerias Tecnys"
+\$Ventana.Title = "Utilerias Technys"
 \$Ventana.Width = 440
 \(Ventana.Height = 550\)Ventana.WindowStartupLocation = "CenterScreen"
 \$Ventana.ResizeMode = "NoResize"
@@ -27,10 +27,18 @@ Add-Type -AssemblyName PresentationFramework
     "9. ABRIR WINUTIL (CHRIS TITUS)" = "titus" 
 }
 
-foreach (\$Nombre in \(Lista.Keys) {\)Btn = New-Object System.Windows.Controls.Button -Property @{ Content=\$Nombre; Height=40; Margin="4"; FontWeight="Bold"; Cursor="Hand" }
-    if (\$Nombre -like "*TITUS*") { Btn.Background = "Purple"; Btn.Foreground = "White" }
+foreach (\$Nombre in \(Lista.Keys) {\)Btn = New-Object System.Windows.Controls.Button
+    \(Btn.Content =\)Nombre
+    \(Btn.Height = 40\)Btn.Margin = "4"
+    \$Btn.FontWeight = "Bold"
+    \$Btn.Cursor = "Hand"
     
-    Accion = Lista[\(Nombre]\)Btn.Add_Click({
+    if (\$Nombre -like "*TITUS*") { 
+        \$Btn.Background = "Purple"
+        \$Btn.Foreground = "White" 
+    }
+    
+    \(Accion =\)Lista[\(Nombre]\)Btn.Add_Click({
         if (\$Accion -eq "titus") { 
             \$Ventana.Close()
             Start-Process powershell.exe -ArgumentList "-NoExit -ExecutionPolicy Bypass -Command `"irm https://christitus.com | iex`"" -Verb RunAs 
@@ -40,7 +48,7 @@ foreach (\$Nombre in \(Lista.Keys) {\)Btn = New-Object System.Windows.Controls.B
             Start-Process powershell.exe -ArgumentList "-NoProfile -ExecutionPolicy Bypass -Command \$Accion" -WindowStyle Hidden
         }
     })
-    Panel.Children.Add(Btn) | Out-Null
+    \(Panel.Children.Add(\)Btn) | Out-Null
 }
 
 \$Ventana.Content = \(Panel\)Ventana.ShowDialog() | Out-Null
