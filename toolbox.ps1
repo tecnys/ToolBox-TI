@@ -5,13 +5,25 @@ Add-Type -AssemblyName PresentationFramework
 $WebURL = "https://tecnys.ueniweb.com/"
 
 $V=New-Object System.Windows.Window
-$V.Title="Utilerias Technys"
+$V.Title="Tecnys"
 $V.Width=440
-$V.Height=780
+$V.Height=820
 $V.WindowStartupLocation="CenterScreen"
 $V.ResizeMode="NoResize"
 $P=New-Object System.Windows.Controls.StackPanel
 $P.Margin="20"
+
+# Encabezado descriptivo
+$H = New-Object System.Windows.Controls.TextBlock
+$H.Text = "Utilerias Tecnys`nServicio y Soporte Tecnico"
+$H.HorizontalAlignment = "Center"
+$H.TextAlignment = "Center"
+$H.FontSize = 14
+$H.FontWeight = "Bold"
+$H.Foreground = "DarkBlue"
+$H.Margin = "0,0,0,15"
+$P.Children.Add($H) | Out-Null
+
 $L=[ordered]@{
 "1. AnyDesk"="https://anydesk.com/es/downloads/windows"
 "2. Chrome"="https://dl.google.com/chrome/install/375.126/chrome_installer.exe"
