@@ -9,14 +9,14 @@ $V.ResizeMode="NoResize"
 $P=New-Object System.Windows.Controls.StackPanel
 $P.Margin="20"
 $L=[ordered]@{
-"1. AnyDesk"="https://download.anydesk.com/AnyDesk.exe"
+"1. AnyDesk"="https://anydesk.com/es/downloads/windows"
 "2. Chrome"="https://dl.google.com/chrome/install/375.126/chrome_installer.exe"
 "3. WinRAR"="https://www.win-rar.com/fileadmin/winrar-versions/winrar/winrar-x64-701.exe"
 "4. CCleaner"="https://download.ccleaner.com/ccsetup.exe"
 "5. PC Manager"="https://pcmanager.microsoft.com/"
 "6. Web Endpoint Security"="https://microsoft.com"
 "7. Web Nitro Pro"="https://gonitro.com"
-"8. Web Driver Konica"="https://konicaminolta.eu"
+"8. Web Driver Konica"="https://www.konicaminolta.jp/business/download/copiers/bizhub_287_227/pcl_ps_pcfax/detail_windows.html"
 "9. ABRIR WINUTIL (CHRIS TITUS)"="titus"
 "10. ACTIVADOR OFFICE (MAS)"="mas"
 }
@@ -34,10 +34,10 @@ foreach($N in $L.Keys){
         $cmd=$this.Tag
         if($cmd -eq "titus"){
             $V.Close()
-            Start-Process powershell "-NoExit -ExecutionPolicy Bypass -Command IMR https://christitus.com/win | IEX" -Verb RunAs
+            Start-Process powershell "-NoExit -ExecutionPolicy Bypass -Command irm https://christitus.com/win | iex" -Verb RunAs
         }elseif($cmd -eq "mas"){
             $V.Close()
-            Start-Process powershell "-NoExit -ExecutionPolicy Bypass -Command IMR https://get.activated.win | IEX" -Verb RunAs
+            Start-Process powershell "-NoExit -ExecutionPolicy Bypass -Command irm https://get.activated.win | iex" -Verb RunAs
         }elseif($cmd -like "http*"){
             Start-Process $cmd
         }
